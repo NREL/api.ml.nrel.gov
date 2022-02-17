@@ -1,9 +1,9 @@
 from urllib.parse import quote
 
 from fastapi.testclient import TestClient
-from ysi_flask import apiapp
+from ysi_api import app
 
-fastapi_client = TestClient(apiapp)
+fastapi_client = TestClient(app)
 
 
 def test_path_api():

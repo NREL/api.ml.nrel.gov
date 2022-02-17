@@ -5,7 +5,7 @@ import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import rdDepictor
 from rdkit.Chem.Draw import rdMolDraw2D
-from ysi_flask.fragdecomp.chemical_conversions import canonicalize_smiles
+from ysi_api.fragdecomp.chemical_conversions import canonicalize_smiles
 
 # from IPython.display import SVG
 

@@ -7,13 +7,13 @@ from fastapi import Depends, FastAPI, HTTPException, Path
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from ysi_flask.fragdecomp.chemical_conversions import canonicalize_smiles
-from ysi_flask.fragdecomp.fragment_decomposition import (
+from ysi_api.fragdecomp.chemical_conversions import canonicalize_smiles
+from ysi_api.fragdecomp.fragment_decomposition import (
     FragmentError,
     draw_fragment,
     draw_mol_svg,
 )
-from ysi_flask.prediction import predict, return_fragment_matches
+from ysi_api.prediction import predict, return_fragment_matches
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

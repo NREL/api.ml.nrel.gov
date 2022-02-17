@@ -1,6 +1,6 @@
 import numpy as np
 
-from ysi_flask import husl
+from ysi_api import husl
 
 
 def husl_palette(n_colors=6, h=0.01, s=0.9, l=0.65):

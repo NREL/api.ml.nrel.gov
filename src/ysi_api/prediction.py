@@ -2,15 +2,15 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import BayesianRidge
 
-from ysi_flask.colors import husl_palette
-from ysi_flask.fragdecomp.chemical_conversions import canonicalize_smiles
-from ysi_flask.fragdecomp.fragment_decomposition import (
+from ysi_api.colors import husl_palette
+from ysi_api.fragdecomp.chemical_conversions import canonicalize_smiles
+from ysi_api.fragdecomp.fragment_decomposition import (
     FragmentError,
     draw_fragment,
     draw_mol_svg,
     get_fragments,
 )
-from ysi_flask.fragdecomp.nullspace_outlier import NullspaceClassifier
+from ysi_api.fragdecomp.nullspace_outlier import NullspaceClassifier
 
 try:
     from flask import Markup
@@ -36,7 +36,7 @@ nullspace.fit(frags)
 
 bridge = BayesianRidge(fit_intercept=False)
 
-bridge.fit(frags, ysi.YSI, sample_weight=1 / ysi.YSI_err)
+bridge.fit(frags.values, ysi.YSI, sample_weight=1 / ysi.YSI_err)
 
 frag_means, frag_stds = bridge.predict(np.eye(frags.shape[1]), return_std=True)
 beta = pd.DataFrame(
