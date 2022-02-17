@@ -131,7 +131,7 @@ def draw_mol_svg(mol_str, color_dict=None, figsize=(300, 300), smiles=True):
     if True:
         try:
             Chem.Kekulize(mc)
-        except:
+        except Exception:
             mc = Chem.Mol(mol.ToBinary())
 
     if not mc.GetNumConformers():
@@ -163,25 +163,25 @@ def draw_mol_svg(mol_str, color_dict=None, figsize=(300, 300), smiles=True):
     return svg
 
 
-def flatten(l, ltypes=(list, tuple)):
+def flatten(list, ltypes=(list, tuple)):
     """Utility function to iterate over a flattened list"""
-    ltype = type(l)
-    l = list(l)
+    ltype = type(list)
+    list = list(list)
     i = 0
-    while i < len(l):
-        while isinstance(l[i], ltypes):
-            if not l[i]:
-                l.pop(i)
+    while i < len(list):
+        while isinstance(list[i], ltypes):
+            if not list[i]:
+                list.pop(i)
                 i -= 1
                 break
             else:
-                l[i : i + 1] = l[i]
+                list[i: i + 1] = list[i]
         i += 1
-    return ltype(l)
+    return ltype(list)
 
 
 def draw_fragment(fragment_name, color):
-    mol = Chem.MolFromSmarts(re.sub(" \|.*$", "", fragment_name))
+    mol = Chem.MolFromSmarts(re.sub(" \\|.*$", "", fragment_name))
     mc = Chem.Mol(mol.ToBinary())
     rdDepictor.Compute2DCoords(mc)
 
