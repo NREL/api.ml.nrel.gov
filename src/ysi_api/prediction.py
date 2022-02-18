@@ -91,6 +91,10 @@ def predict(smiles):
         frag_df["svg"] = frag_df.apply(
             lambda x: Markup(draw_fragment(x.name, x.color)), 1
         )
+    else:
+        frag_df["svg"] = frag_df.apply(
+            lambda x: draw_fragment(x.name, x.color), 1
+        )
     frag_df = frag_df.join(beta, how="left").fillna(0)
 
     return mean[0], std[0], isoutlier, frag_df, exp_mean, exp_std, exp_name
@@ -104,12 +108,16 @@ def return_fragment_matches(frag_str):
 
     if len(matches) > 20:
         matches = matches.sample(20)
-
-    matches["svg"] = matches.SMILES.apply(
-        lambda x: Markup(
-            draw_mol_svg(x, figsize=(80, 80), color_dict={frag_str: color})
+    if flask:
+        matches["svg"] = matches.SMILES.apply(
+            lambda x: Markup(
+                draw_mol_svg(x, figsize=(80, 80), color_dict={frag_str: color})
+            )
         )
-    )
+    else:
+        matches["svg"] = matches.SMILES.apply(
+            lambda x: draw_mol_svg(x, figsize=(80, 80), color_dict={frag_str: color})
+        )
 
     return beta.loc[frag_str], matches.round(1)
 
