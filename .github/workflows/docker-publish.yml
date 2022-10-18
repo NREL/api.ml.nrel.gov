@@ -1,4 +1,3 @@
-
 name: Docker
 
 # This workflow uses actions that are not certified by GitHub.
@@ -8,18 +7,17 @@ name: Docker
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     # Publish semver tags as releases.
-    tags: [ 'v*.*.*' ]
+    tags: ['v*.*.*']
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
-
 
 jobs:
   build-and-test:
@@ -32,18 +30,15 @@ jobs:
         ports:
           - 5000:5000
     steps:
-      -
-        name: Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v2
-      -
-        name: Set up Docker Buildx
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
         with:
           version: v0.6.0
           buildkitd-flags: --debug
           driver-opts: network=host
-      -
-        name: Build docker image locally
+      - name: Build docker image locally
         uses: docker/build-push-action@v2
         with:
           context: .
@@ -52,8 +47,7 @@ jobs:
           file: Dockerfile
           cache-from: type=gha
           cache-to: type=gha
-      -
-        name: Run Tests
+      - name: Run Tests
         run: |
           docker run localhost:5000/name/app:latest ./run_tests.sh
 
@@ -65,30 +59,25 @@ jobs:
       packages: write
     if: startsWith(github.ref, 'refs/tags')
     steps:
-      -
-        name: Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v2
-      -
-        name: Set up Docker Buildx
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
         with:
           version: v0.6.0
           buildkitd-flags: --debug
-      -
-        name: Log into registry ${{ env.REGISTRY }}
+      - name: Log into registry ${{ env.REGISTRY }}
         uses: docker/login-action@28218f9b04b4f3f62068d7b6ce6ca5b26e35336c
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      -
-        name: Extract Docker metadata
+      - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-      -
-        name: Build and push Docker image
+      - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
           context: .
@@ -98,3 +87,23 @@ jobs:
           file: Dockerfile
           cache-from: type=gha
           cache-to: type=gha
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Get tag
+        id: tag
+        uses: dawidd6/action-get-tag@v1
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          REGISTRY: 991404956194.dkr.ecr.us-west-2.amazonaws.com
+          REPOSITORY: ml-api
+          IMAGE_TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
