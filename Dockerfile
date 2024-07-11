@@ -1,4 +1,6 @@
 FROM condaforge/mambaforge
+# update to fix some vulnerabilities
+RUN apt-get update && apt-get -y upgrade
 
 COPY etc/environment.yml /tmp/environment.yml
 WORKDIR /tmp
@@ -10,6 +12,11 @@ COPY src /deploy/app
 COPY etc/run_tests.sh /deploy/app
 RUN chmod +x /deploy/app/run_tests.sh
 
+# cleanup after the update and upgrade
+RUN rm -rf /var/lib/apt/lists/* \
+    && apt-get autoremove -y \
+    && apt-get clean
+    
 
 WORKDIR /deploy/app
 ENV PYTHONPATH="${PYTHONPATH}:/deploy/app"
